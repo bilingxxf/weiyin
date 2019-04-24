@@ -1,0 +1,30 @@
+{
+	"group_list": {
+		"url": "wx_group/group_list",
+		"method": "POST"
+	},
+	"wx_list": {
+		"url": "wx_user_list_search_key",
+		"method": "POST"
+	},
+	"plan_list": {
+		"url": "plan/plan_list",
+		"method": "POST"
+	},
+	"start_plan": {
+		"url": "plan/start_plan",
+		"method": "POST"
+	},
+	"wx_codes": {
+		"url": "wx_wxuser/batch_wx_list",
+		"method": "POST"
+	},
+	"task_status": {
+		"url": "plan/status/?planId=$planId&status=$status",
+		"method": "POST"
+	},
+	"task_delete": {
+		"url": "plan/$planId",
+		"method": "DELETE"
+	}
+}

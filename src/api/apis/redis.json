@@ -1,0 +1,20 @@
+{
+	"string": {
+		"func": ["set", "get", "del"]
+	},
+	"int": {
+		"func": ["set", "get", "del", "incr"]
+	},
+	"set": {
+		"func": ["rem", "add", "get", "del", "has", "copy"]
+	},
+	"zset": {
+		"func": ["rem", "add", "get", "del", "score/rem", "score/get"]
+	},
+	"list": {
+		"func": ["push", "get", "del", "pop/head", "pop/tail", "copy"]
+	},
+	"file": {
+		"func": ["upload"]
+	}
+}

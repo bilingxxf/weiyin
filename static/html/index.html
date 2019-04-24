@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" sizes="32x32">
+    <title>微信扫一扫</title>
+    <style>
+      .app {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url(./images/bg_img.png) no-repeat;
+        background-size: cover
+      }
+
+      .success {
+        background: url(./images/chenggong.png) 50%   no-repeat;
+      }
+      .container {
+        position: relative;
+        top: 50%;
+        left: 50%;
+        margin: -280px 0 0 -190px;
+        width: 240px;
+        height: 400px;
+        background: #fff;
+        padding: 40px 70px 120px; 
+        text-align: center;
+        border-radius: 10px;
+      }
+      .unstart {
+        display: none
+      }
+      .pause .content, .unstart .content {
+        position: absolute;
+        text-align: center;
+        line-height: 240px;
+        font-size: 18px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, .7)
+      }
+
+      img {
+        width: 100%;
+        display: block
+      }
+
+      #qrcode, .success, .pause .content, .unstart .content  {
+        position: relative;
+        margin: 50px auto 26px;
+        display: block;
+        width: 240px;
+        height: 240px;
+      }
+
+      .p2 {
+        font-size: 18px;
+      }
+
+      .p1 {
+        text-align: left;
+        font-size: 14px;
+        color: #999
+      }
+
+      #wx {
+        font-size: 18px;
+        color: #000
+      }
+
+      .pause .bottom {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 14px;
+        line-height: 24px;
+        border-bottom: 1px solid #333
+      }
+
+      .pause, .continue, .success-block {
+        display: none
+      }
+
+      @media screen and (max-width: 500px) {
+        .container {
+          width: 160px;
+          height: 240px;
+          padding: 40px 50px;
+          margin: -200px 0 0 -130px;
+        }
+        #qrcode,.success, .pause .content, .unstart .content  {
+          margin: 20px auto 0;
+          width: 160px;
+          height: 160px;
+        }
+
+        .success {
+          background-size: 70%
+        }
+        .pause .content, .unstart .content {
+          line-height: 160px;
+        }
+
+        .p2, .p1, #wx, .pause .bottom  {
+          font-size: 12px;
+        }
+      }
+    </style>
+
+    <script src="./js/jquery.min.js"></script>  
+    <script src="./js/qrcode.min.js"></script>
+  </head>
+  <body>
+    <div class="app">
+    <div class="container">
+      <div class="continue">
+        <p class="p2 continue">微信扫描二维码添加好友</p>
+        <div id="qrcode">
+        </div>
+        <p class="p1 continue">当前账号：<span id="wx"></span></p>
+      </div>
+      <div class="pause">
+        <div class="content">活动暂停</div>
+        <div class="bottom">联系客服</div>
+      </div>
+
+      <div class="unstart">
+          <div class="content">活动尚未开始</div>
+        </div>
+
+      <section class="success-block">
+          <p class="p2">本次所有好友您已添加成功</p>
+          <div class="success"></div>
+      </section>
+    </div>
+
+    </div>
+  </body>
+  <script>
+    function setQuery() {
+      var search = location.search.replace('?', '')
+      var arr = search.split('&')
+      var o = {}
+      arr.map((v, i) => {
+        var a = v.split('=')
+        o[a[0]] = a[1]
+      })
+      console.log(o)
+      return o
+    }
+    window.onload = function() {
+      var key = setQuery().timestr
+      var width = window.screen.width
+      var qrWidth = width > 500 ? 240 :160;
+      var beforeUrl, timer, startTimer;
+      var qrcode = new QRCode(document.getElementById("qrcode"), {
+        width : qrWidth,
+        height : qrWidth
+      });
+
+      var origin = location.origin
+      var isDev = origin.includes('localhost') || origin.includes('201') || origin.includes('47.110.226.195') || origin.includes('47.111.98.235')
+      var path = isDev ? 'http://116.62.222.134/api/v2' : 'http://47.98.114.237/api/v2'
+
+      function getStatus() {
+        $.ajax({
+            url: path+'/string/get',
+            type: 'post',
+            data: JSON.stringify({
+              list: [
+                {
+                   key: 'QA_status_'+key
+                }
+              ]
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: (res) => {
+              if (res.error_code === 0) {
+                var data = res.data.list[0].value
+                if (!data) { 
+                  clearInterval(timer)
+                  alert('二维码不存在') 
+                } else if (data == 0) {
+                  getlist()
+                } else if (data == 1) {
+                  $('.pause').show()
+                  $('.continue').hide()
+                } else {
+                  $('.success-block').show()
+                  $('.pause').hide()
+                  $('.continue').hide()
+                  clearInterval(timer)
+                }
+              } else {
+                clearInterval(timer)
+                alert('数据获取失败')
+              }
+            },
+            error: () => {
+              clearInterval(timer)
+              alert('数据获取失败')
+            }
+          })
+        }
+
+        function getStartTime () {
+          $.ajax({
+            url: path+'/string/get',
+            type: 'post',
+            data: JSON.stringify({
+              list: [
+                {
+                   key: 'QA_start_'+key
+                }
+              ]
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: (res) => {
+              if (res.error_code === 0) {
+                var data = res.data.list[0].value
+                if (!data) {
+                  clearInterval(startTimer)
+                  alert('活动不存在') 
+                }
+
+                var doingtime = new Date(data.replace(/\-/g, '/'))
+                if (doingtime.getTime() > Date.now()) {
+                  $('.unstart').show()
+                } else {
+                  $('.unstart').hide()
+                  getStatus()
+                  timer = setInterval(getStatus, 3000)
+                  clearInterval(startTimer)
+                }
+              } else {
+                clearInterval(startTimer)
+                alert('数据获取失败')
+              }
+            },
+            error: (e) => {
+              clearInterval(startTimer)
+              alert(JSON.stringify(e))
+            }
+          })
+        }
+        
+
+        getStartTime();
+        startTimer = setInterval(getStartTime, 3000)
+
+        function getlist () {
+          $.ajax({
+            url: path + `/zset/get?rsp_data_type=json`,
+            type: 'post',
+            data: JSON.stringify({
+                key: 'QA_wxids_'+key
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: (res) => {
+              if (res.error_code === 0) {
+                
+                if (!res.data.members.length) {
+                  $('.success-block').show()
+                  $('.pause').hide()
+                  $('.continue').hide()
+                  clearInterval(startTimer)
+                  clearInterval(timer)
+                } else {
+                    var data = res.data.members[0].value
+                    var wx_qr_code = data.wx_qr_code
+
+                    if (beforeUrl !== wx_qr_code) {
+                      qrcode.makeCode(wx_qr_code)
+                      $('#wx').html(`${data.wx_user_name || ''}${data.wx_user_group ? ('('+ data.wx_user_group +')') : ''}`)
+                    }
+                    beforeUrl = wx_qr_code
+                    $('.pause').hide()
+                    $('.continue').show()
+                }
+              } else {
+                alert('数据获取失败')
+              }
+            },
+            error: () => {
+              alert('数据获取失败')
+            }
+          })
+        }
+
+    }
+    // // http://172.16.0.201:8888/aa
+
+    // function getStartTime () {
+    //       $.ajax({
+    //         type: 'post',
+    //         url: 'http://172.16.0.201:8088/string/get',
+    //         data: JSON.stringify({
+    //           list: [
+    //             {
+    //                key: `QA_status_1555550995797487`
+    //             }
+    //           ]
+    //         }),
+    //         contentType: "application/json; charset=utf-8",
+    //         dataType: "json",
+    //         success: function(res) {
+    //           alert(JSON.stringify(res))
+    //           console.log(res)
+    //         },
+    //         error: (e) => {
+    //           alert(JSON.stringify(e))
+    //         }
+    //       })
+    // }
+        
+    //     setTimeout(() => {
+    //       getStartTime();
+    //     }, 1000)
+    </script>
+</html>

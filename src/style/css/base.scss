@@ -1,0 +1,25 @@
+/*基础变量*/
+
+/*文字色值*/
+$f-color:#333;
+/*基础色值*/
+$b-color:#fff;
+/*主题色值*/
+$t-color:#409eff;
+/*主区域背景色值*/
+$bg-color:#e8eff6;
+$b-height:30px;
+$margin:20px;
+$border-color:#dcdfe6;
+
+/*灰色风格弹窗*/
+$g-bg: #f0f3f6;
+/*table th栏 背景*/
+$gt-bg:#e6f1ff;
+$gb-color: #EBEEF5;
+
+.flex{
+	display: flex;
+	align-items:center;
+	justify-content:center;
+}
