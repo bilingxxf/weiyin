@@ -6,13 +6,16 @@
 		"func": ["set", "get", "del", "incr"]
 	},
 	"set": {
-		"func": ["rem", "add", "get", "del", "has", "copy"]
+		"func": ["rem", "add", "get", "del", "has", "copy", "len", "diff", "inter", "union"]
 	},
 	"zset": {
-		"func": ["rem", "add", "get", "del", "score/rem", "score/get"]
+		"func": ["rem", "add", "get", "del", "score/rem", "score/get", "len", "copy"]
 	},
 	"list": {
-		"func": ["push", "get", "del", "pop/head", "pop/tail", "copy"]
+		"func": ["push", "get", "del", "pop/head", "pop/tail", "copy", "len"]
+	},
+	"hash": {
+		"func": ["add", "all", "copy", "del", "get", "rem", "len"]
 	},
 	"file": {
 		"func": ["upload"]

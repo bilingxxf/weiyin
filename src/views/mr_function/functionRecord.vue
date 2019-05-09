@@ -222,10 +222,10 @@
         this.loading = true;
         param['childUserId'] = Number(this.selectChildAccountId);
         if (this.starttime != '') {
-          data['startTime'] = this.starttime;
+          data['startTime'] = this.starttime + " 00:00:01";
         }
         if (this.endtime != '') {
-          data['endTime'] = this.endtime;
+          data['endTime'] = this.endtime + " 23:59:59";
         }
         if (this.selectChildAccountId != "") {
           data['param'] = JSON.stringify(param)

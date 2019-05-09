@@ -325,7 +325,7 @@
           userId: Number(this.userId)
         };
         this.loading = true;
-        if (this.searchDate != null) {
+        if (this.searchDate != null && this.searchDate!='') {
           params['startTime'] = this.startTime;
           params['endTime'] = this.endTime;
         }

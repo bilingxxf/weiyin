@@ -1991,7 +1991,7 @@ export default {
       let params = {};
       let data = {};
       let flag = 0;
-      let group_name = this.selectGroup === "" ? "" : this.taskGroupName;
+      let group_name = (this.selectGroup === "" || this.selectGroup==null) ? "" : this.taskGroupName;
       params['pageNo'] = this.page;
       params['length'] = this.limit;
       if(group_name != ''){

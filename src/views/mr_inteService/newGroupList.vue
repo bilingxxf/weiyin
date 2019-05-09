@@ -10,11 +10,6 @@
             <el-date-picker class="ele-date-editor" style="vertical-align: middle;" v-model="searchDate" :clearable="false" type="daterange"
               range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"  @change="searchList" value-format="yyyy-MM-dd">
             </el-date-picker>
-            <el-select size="small" class="ele-select" v-model="statusValue" clearable @change="page=1,getSendData()">
-              <el-option label="全部" value=""></el-option>
-              <el-option v-for="(item,index) in selectStatus" :key="index" :label="item.label" :value="item.value">
-              </el-option>
-            </el-select>
           </div>
         </div>
         <div class="edit-group">
@@ -24,9 +19,9 @@
         <div class="table_wrapper">
           <el-table ref="multipleTable" :data="tableData" class="ele-table-init"
             @selection-change="handleSelectionChange" v-loading="loading">
-            <el-table-column width="10" fixed></el-table-column>
-            <el-table-column type="selection" align="left" fixed="left" width="50"></el-table-column>
-            <el-table-column label="序号" align="left" width="60">
+            <el-table-column width="20" fixed></el-table-column>
+            <!-- <el-table-column type="selection" align="left" fixed="left" width="50"></el-table-column> -->
+            <el-table-column label="序号" align="left" width="80">
               <template slot-scope="scope">{{scope.$index+1}}</template>
             </el-table-column>
             <el-table-column label="任务名称" align="left">
@@ -37,11 +32,11 @@
                 </el-tooltip>
               </template>
             </el-table-column>
-            <el-table-column prop="startTime" label="执行时间" align="left">
+            <el-table-column label="执行时间" align="left">
               <template slot-scope="scope">
-                <el-tooltip :open-delay="350" :content="scope.row.startTime" placement="bottom" effect="light"
+                <el-tooltip :open-delay="350" :content="scope.row.webtime" placement="bottom" effect="light"
                   :offset="80">
-                  <span class="writeWrapper">{{scope.row.startTime}}</span>
+                  <span class="writeWrapper">{{scope.row.webtime}}</span>
                 </el-tooltip>
               </template>
             </el-table-column>
@@ -53,11 +48,6 @@
                   <span class="writeWrapper"
                     v-if="scope.row.createTime!=='1999-01-01 00:00:00'">{{scope.row.createTime}}</span>
                 </el-tooltip>
-              </template>
-            </el-table-column>
-            <el-table-column label="状态" align="left" width="65">
-              <template slot-scope="scope">
-                <span>{{scope.row.planStatus|formatState}}</span>
               </template>
             </el-table-column>
             <el-table-column label="操作" align="right">
@@ -93,8 +83,8 @@
               <div>
                 <span class="tip">微信号</span>
                 <div class="inline">
-                  <el-radio v-model="wxRadio" label="1" :disabled="wxRadio!=1">全部微信号</el-radio>
-                  <el-radio v-model="wxRadio" label="2" :disabled="wxRadio!=2" style="display:inline;">按分组选择</el-radio>
+                  <el-radio v-model="wxRadio" label="0" :disabled="wxRadio!=0">全部微信号</el-radio>
+                  <el-radio v-model="wxRadio" label="1" :disabled="wxRadio!=1" style="display:inline;">按分组选择</el-radio>
                   <p v-if="wxSelect.wxGroupIds>0" style="font-size:12px;display:inline;margin-left:-15px;">共<span style="color:#409EFF;margin:0 4px;">{{wxSelect.wxGroupLen}}</span>个分组</p>
                   <!-- <div class="box" style="overflow-x:hidden;" :class="sysGroupList.length>1?'height110':'height74'"
                     v-if="radio==2">
@@ -108,18 +98,18 @@
                       </div>
                     </el-scrollbar>
                   </div> -->
-                  <el-radio v-model="wxRadio" :disabled="wxRadio!=3" label="3">自定义选择</el-radio>
+                  <el-radio v-model="wxRadio" :disabled="wxRadio!=2" label="2">自定义选择</el-radio>
                 </div>
               </div>
               <div>
                 <span class="tip">好友</span>
                 <div class="inline">
-                  <el-radio v-model="friendRadio" label="1" :disabled="friendRadio!=1">全部好友</el-radio>
-                  <el-radio v-model="friendRadio" label="2" :disabled="friendRadio!=2">通过时间筛选<el-date-picker v-model="filtrateTime" style="margin-left:10px;" type="datetimerange" range-separator="至"
+                  <el-radio v-model="friendRadio" label="0" :disabled="friendRadio!=0">全部好友</el-radio>
+                  <el-radio v-model="friendRadio" label="1" :disabled="friendRadio!=1">通过时间筛选<el-date-picker v-model="filtrateTime" style="margin-left:10px;" type="datetimerange" range-separator="至"
                       start-placeholder="开始日期" end-placeholder="结束日期" disabled class="ele-date-editor">
                     </el-date-picker>
                   </el-radio>
-                  <el-radio v-model="friendRadio" label="3" :disabled="friendRadio!='3'">自定义好友</el-radio>
+                  <el-radio v-model="friendRadio" label="2" :disabled="friendRadio!='2'">自定义好友</el-radio>
                 </div>
               </div>
               <div style="margin-bottom:20px;">
@@ -139,12 +129,12 @@
                 <span class="tip" v-if="index=='0'">标签一:</span><span class="tagName" v-if="index=='0'">{{item.contactLabelName}}</span>
                 <span class="tip" v-if="index=='1'">标签二:</span><span class="tagName" v-if="index=='1'">{{item.contactLabelName}}</span>
                 <div class="tagInline">
-                  <el-radio v-model="item.radio" label="1" :disabled="item.radio!=1">全部好友</el-radio>
-                  <el-radio v-model="item.radio" label="2" :disabled="item.radio!=2">通过时间筛选<el-date-picker v-model="item.filtrateTime" style="margin-left:10px;" disabled type="datetimerange" range-separator="至"
+                  <el-radio v-model="item.radio" label="0" :disabled="item.radio!=0">全部好友</el-radio>
+                  <el-radio v-model="item.radio" label="1" :disabled="item.radio!=1">通过时间筛选<el-date-picker v-model="item.filtrateTime" style="margin-left:10px;" disabled type="datetimerange" range-separator="至"
                       start-placeholder="开始日期" end-placeholder="结束日期" class="ele-date-editor">
                     </el-date-picker>
                   </el-radio>
-                  <el-radio v-model="item.radio" label="3" :disabled="item.radio!=3">自定义好友</el-radio>
+                  <el-radio v-model="item.radio" label="2" :disabled="item.radio!=2">自定义好友</el-radio>
                 </div>
               </div>
               <div style="margin-bottom:20px;">
@@ -210,17 +200,6 @@
         textarea: "",
         dateTime: "",
         filtrateTime: "",
-        selectStatus: [{
-          value: -1,
-          label: "未开始"
-        }, {
-          value: 0,
-          label: "进行中"
-        }, {
-          value: 3,
-          label: "已完成"
-        }],
-        statusValue: "",
         groupSendId: [],
         startTime: "",
         endTime: "",
@@ -231,47 +210,7 @@
         labelTwoRadio: "",
         friendRadio: "",
         planId:"",
-        wxSelect: {
-          // "endTime": "1999-01-01 00:00:00",
-          // "enumWxaccountSource": 2,
-          // "fatherPlanId": 0,
-          // "mode": 0,
-          // "planName": "",
-          // "planParams": {
-          //   // selectType: 1, //按微信号选择
-          //   // wxIds: [1, 2, 3], //全部微信号和按分组选择时传空数组
-          //   // wxGroupIds: [1, 2, 3], //不是按分组选择时传空数组
-          //   // contactInfos: [], //全部好友或者按好友通过时间筛选时传空数组
-          //   // contactStartTime: "2019-04-10 10:35:50", //好友通过时间
-          //   // contactEndTime: "2019-04-30 10:55:59", //好友通过时间
-          //   // sendMsg: "全部微选择时传空数组", //消息
-          //   // execTime: "" //执行时间
-
-          //   selectType:2,  			//按好友标签选择
-          //   contactLabelInfos:[
-          //     {
-          //       contactLabelId:1,
-          //       contactIds:[],
-          //       contactStartTime:"2019-04-10 10:35:50",
-          //       contactEndTime:"2019-04-30 10:55:59"
-          //     },
-          //     {
-          //       contactLabelId:2,
-          //       contactIds:[1,2,3],
-          //       contactStartTime:"",
-          //       contactEndTime:""
-          //     }
-          //   ],
-          //   sendMsg:"",
-          // },
-          // "remainDays": 1,
-          // "repeatDays": 1,
-          // "startTime": "1999-01-01 00:00:00",
-          // "taskRepeatTimes": 1,
-          // "templateId": 0,
-          // "wxGroupIds": "1287,809,2074,837,723,1091,1288,2073",
-          // "wxids": ""
-        },
+        wxSelect: {},
         labelSelect: [],
         sendMsg: "",
         filtrateTime: [],
@@ -287,10 +226,8 @@
       this.userId = sessionStorage.getItem("user_id");
       this.token = sessionStorage.getItem('token');
       this.searchDate = defaultDate(-7)
-      // this.getSendData();
         this.searchList();
         this.getLabelName();
-      // this.getGroupList();
     },
     methods: {
       // 获取标签信息
@@ -357,7 +294,7 @@
         this.getSendData();
         this.hideModel();
       },
-      //删除，暂停，执行
+      //删除
       handleStatus(status) {
         let data = {
           id: this.editId,
@@ -394,12 +331,11 @@
         let params = {
           length: this.pageSize,
           pageNo: this.page,
-          templateName: "批量群发消息",
-          planStatus:this.statusValue
+          templateName: "批量群发消息"
         };
         this.loading = true;
         if (this.searchDate != null) {
-          params['startTime'] = this.startTime + ' 00:00:00';
+          params['startTime'] = this.startTime + ' 00:00:01';
           params['endTime'] = this.endTime  + ' 23:59:59';
         }
         this.$http("plan/plan_list", "POST", params).then(res => {
@@ -407,6 +343,13 @@
             this.loading = false;
             let data = res.data.data;
             this.total = data.total_count;
+            data.result.map((item,index)=>{
+              if(item.planParams.indexOf('friendtime')>-1){
+                item.webtime = JSON.parse(item.planParams).friendtime;
+              }else{
+                item.webtime = JSON.parse(item.planParams).webtime;
+              }
+            })
             this.tableData = data.result;
           } else {
             this.$message.error(res.data.error_message);
@@ -416,53 +359,6 @@
         });
       },
       showModel(type, title, row) {
-        // if (this.wxSelect.planParams.selectType == 1) {
-        //   this.activeName = "first";
-        //   let arr = this.wxSelect.wxGroupIds.split(",")
-        //   this.getGroupList(arr);
-        //   if (this.wxSelect.wxGroupIds == "" && this.wxSelect.wxids == "") {
-        //     this.wxRadio = "1"
-        //   } else if (this.wxSelect.wxGroupIds.length > 0) {
-        //     this.wxRadio = "2"
-        //   } else if (this.wxSelect.wxids.length > 0) {
-        //     this.wxRadio = "3";
-        //   }
-        //   let friendInfo = this.wxSelect.planParams;
-        //   if (friendInfo.contactStartTime != "") {
-        //     this.friendRadio = "2";
-        //     let arr = [];
-        //     arr.push(friendInfo.contactStartTime)
-        //     arr.push(friendInfo.contactEndTime)
-        //     this.filtrateTime = arr;
-        //   }
-        //   if (friendInfo.contactInfos.length > 0) {
-        //     this.friendRadio = "3";
-        //   }
-        //   if (friendInfo.contactInfos.length == 0 && friendInfo.contactStartTime == "") {
-        //     this.friendRadio = "1";
-        //   }
-        //   this.sendMsg = friendInfo.sendMsg;
-        // } else {
-        //   this.labelSelect = [];
-        //   this.activeName = "second";
-        //   let labelInfo = this.wxSelect.planParams;
-        //   labelInfo.contactLabelInfos.map(item => {
-        //     if (item.contactStartTime != "") {
-        //       item['radio'] = '2';
-        //       let arr = [];
-        //       arr.push(item.contactStartTime, item.contactEndTime)
-        //       item['filtrateTime'] = arr;
-        //     }
-        //     if (item.contactIds.length > 0) {
-        //       item['radio'] = '3'
-        //     }
-        //     if (item.contactIds.length == "" && item.contactStartTime == "") {
-        //       item['radio'] = '1'
-        //     }
-        //     this.labelSelect.push(item)
-        //   })
-        // }
-
         if(type!="taskDetail"){
           this.$store.dispatch("showDialog", {
             title: title,
@@ -474,52 +370,34 @@
           if ( JSON.parse(this.wxSelect.planParams).selectType == 1) {
             this.activeName = "first";
             let arr = this.wxSelect.wxGroupIds.split(",")
-            this.getGroupList(arr);
+            // this.getGroupList(arr);  //任务详情 遍历格式化分组数据
             this.wxSelect['wxGroupLen'] = arr.length;
-            if (this.wxSelect.wxGroupIds == "" && this.wxSelect.wxids == "") {
-              this.wxRadio = "1"
-            } else if (this.wxSelect.wxGroupIds.length > 0) {
-              this.wxRadio = "2"
-            } else if (this.wxSelect.wxids.length > 0) {
-              this.wxRadio = "3";
-            }
-            let friendInfo = JSON.parse(this.wxSelect.planParams);
-            if (friendInfo.contactStartTime != "") {
-              this.friendRadio = "2";
-              let arr = [];
-              arr.push(friendInfo.contactStartTime)
-              arr.push(friendInfo.contactEndTime)
-              this.filtrateTime = arr;
-            }
-            if (friendInfo.contactInfos.length > 0) {
-              this.friendRadio = "3";
-            }
-            if (friendInfo.contactInfos.length == 0 && friendInfo.contactStartTime == "") {
-              this.friendRadio = "1";
-            }
-            this.sendMsg = friendInfo.sendMsg;
+            let selectInfo = JSON.parse(this.wxSelect.planParams); 
+              this.wxRadio = selectInfo.webchatStyle;
+              this.friendRadio = selectInfo.friendsStyle;
+              if(this.friendRadio==1){
+                let arr = [];
+                arr.push(selectInfo.contactStartTime)
+                arr.push(selectInfo.contactEndTime)
+                this.filtrateTime = arr;
+              }
+            this.sendMsg = selectInfo.sendMsg;
           } else {
             this.labelSelect = [];
             this.activeName = "second";
             let labelInfo = JSON.parse(row.planParams);
-            labelInfo.contactLabelInfos.map(item => {
+            labelInfo.contactLabelInfos.map((item,index) => {
               this.labelArr.map(labelItem=>{
                 if(labelItem.wxContactLabelId ==item.contactLabelId){
                   item['contactLabelName']=labelItem.labelName;
                 }
               })
-              if (item.contactStartTime != "") {
-                item['radio'] = '2';
-                let arr = [];
-                arr.push(item.contactStartTime, item.contactEndTime)
-                item['filtrateTime'] = arr;
-              }
-              if (item.contactInfos.length > 0) {
-                item['radio'] = '3'
-              }
-              if (item.contactInfos.length == "" && item.contactStartTime == "") {
-                item['radio'] = '1'
-              }
+                item['radio'] = labelInfo.friendsStyle[index];
+                if(item['radio']==1){
+                  let arr = [];
+                  arr.push(item.contactStartTime, item.contactEndTime)
+                  item['filtrateTime'] = arr;
+                } 
               this.labelSelect.push(item)
             })
             this.sendMsg = labelInfo.sendMsg;
@@ -572,35 +450,7 @@
       handleView() {
         this.hideModel();
       }
-    },
-    filters: {
-      formatState(num) {
-        // if(num.includes(0)){
-        //   return "进行中"
-        // }else if(num==''){
-        //   return "未开始"
-        // }else{
-        //   return "已完成"
-        // }
-        switch (num * 1) {
-          case -1:
-            return "未开始";
-            break;
-          case 0:
-            return "进行中";
-            break;
-          case 2:
-            return "已删除";
-            break;
-          case 3:
-            return "已完成";
-            break;
-          default:
-            return "未知";
-            break;
-        }
-      }
-    },
+    }
   };
 
 </script>

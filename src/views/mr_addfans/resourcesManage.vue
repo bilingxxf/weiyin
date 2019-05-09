@@ -131,6 +131,9 @@
   import Dialog from "../../components/dialog.vue";
   import {config} from "../../api/http.js";
   import  util from '../../../static/js/common.js';
+  // import XLSX from "xlsx";
+  // import { outputXlsxInArray } from "../../../static/js/downloadExcel.js";
+
   var downloadXLS = util.downloadXLS;
   import {
     mapState,
@@ -183,6 +186,30 @@
       ])
     },
     mounted() {
+      // outputXlsxInArray.bind(XLSX, {
+      //   xslx: '我的号库',
+      //   SheetNames: ['报表'],
+      //   Sheets: [{
+      //     headers: ['1', '2', '3'],
+      //     data: [['1', '2', '安防监控']],
+      //     merger:['注：', '这里的时间是创建时间'],
+      //     config: {
+      //       B1: {
+      //         s: {
+      //           font: {
+      //             color: {rgb: "FFFF0000"},
+      //             sz: 18,
+      //             bold: true 
+      //           }
+      //         }
+      //       },
+      //       '!merges': [{
+      //         s: { c:1, r: 0 },
+      //         e: { c:4, r: 0 }
+      //       }]
+      //     }
+      //   }]
+      // })()
       this.resourcesInit();
       this.token = sessionStorage.getItem("token");
     },
@@ -370,8 +397,8 @@
         this.$http('phone_group/list', 'POST', {
           pageNo: this.currentPage,
           length: this.limit,
-          startTime: this.startTime,
-          endTime: this.endTime
+          startTime: this.startTime!=""? (this.startTime):"",
+          endTime: this.endTime!=""?  (this.endTime):""
         }).then(res => {
           if (res.data.error_code == 0) {
             this.loading = false;

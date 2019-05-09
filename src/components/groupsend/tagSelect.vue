@@ -15,10 +15,10 @@
         @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55">
         </el-table-column>
-        <el-table-column label="好友微信号" width="120">
+        <el-table-column label="好友微信号">
           <template slot-scope="scope"><span class="no-wrap">{{ scope.row.contact_wxuser_name }}</span></template>
         </el-table-column>
-        <el-table-column prop="name" label="所属微信号" align="center" width="120">
+        <el-table-column prop="name" label="所属微信号" align="center">
           <template slot-scope="scope"><span  class="no-wrap">{{ scope.row.wx_user_nick_name }}</span></template>
         </el-table-column>
         <el-table-column prop="address" label="通过好友时间" align="right" show-overflow-tooltip>
@@ -56,7 +56,7 @@
     },
     watch: {
       value: {
-				handler(value) {
+		handler(value) {
           this.selectors = this.selectedTagItem.selectFriend
           this.$nextTick(() => {
             this.selectors.map((v) => {

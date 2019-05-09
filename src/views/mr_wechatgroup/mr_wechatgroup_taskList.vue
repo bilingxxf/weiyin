@@ -55,8 +55,8 @@
             </el-table-column>
             <el-table-column prop="createTime" label="创建时间" align="left"></el-table-column>
             <el-table-column prop="chatroomMaxMemberCount" label="群聊限制人数" align="center"></el-table-column>
-            <el-table-column prop="wxCount" label="微信号总数量" align="center"></el-table-column>
-            <el-table-column prop="contactCount" label="好友总数" align="center"></el-table-column>
+            <!-- <el-table-column prop="wxCount" label="微信号总数量" align="center"></el-table-column>
+            <el-table-column prop="contactCount" label="好友总数" align="center"></el-table-column> -->
             <el-table-column label="状态" align="left">
               <template slot-scope="scope">
                 <span>{{scope.row.planStatusByTask|formatState}}</span>
@@ -190,9 +190,9 @@
         //   this.$message.error(err);
         // });
         let data = {};
-        if(this.searchDate!=null){
-            data['startTime'] = this.startTime;
-            data['endTime'] = this.endTime;
+        if(this.searchDate!=null&&this.searchDate!=""){
+            data['startTime'] = this.startTime + " 00:00:01";
+            data['endTime'] = this.endTime + " 23:59:59";
         }
         data['templateName'] = '批量拉人入群';
         data['pageNo'] = this.page;
@@ -204,6 +204,14 @@
             this.total = data.total_count;
             let arr = [];
             data.result.map(item=>{
+                let nowDate = new Date().valueOf();
+                let createDate = new Date(item.createTime).valueOf();
+                if(nowDate-createDate>1800000){
+                  item['planStatusByTask'] = 1;
+                }else{
+                  item['planStatusByTask'] = 0;
+                }
+
               item['chatroomMaxMemberCount'] = JSON.parse(item.planParams).maxMember;
               item['wxCount'] = item.wxids.split(',').length;
             })
@@ -223,7 +231,8 @@
         })
       },
       showModel(type,title,row){
-        this.editId=row.planId;
+        this.editId = JSON.parse(row.planParams).planKey;
+        // this.editId=row.planId;
         this.$store.dispatch("showDialog",{
           title:title,
           showCancel:true,
@@ -404,31 +413,14 @@
     },
     filters:{
       formatState(num){
-        if(num.includes(0)||num==''){
-          return "进行中"
-        }else{
-          return "已完成"
+        switch (num*1) {
+          case 0:
+            return "进行中";
+            break;
+          default:
+            return "已结束";
+            break;
         }
-        // switch (num*1) {
-        //   case 0:
-        //     return "进行中";
-        //     break;
-        //   case 1:
-        //     return "完成";
-        //     break;
-        //   case 2:
-        //     return "失败(参数错误)";
-        //     break;
-        //   case 3:
-        //     return "失败(未查询到满足条件的好友)";
-        //     break;
-        //   case 4:
-        //     return "失败(任务执行失败)";
-        //     break;
-        //   default:
-        //     return "未知";
-        //     break;
-        // }
       }
     },
   };

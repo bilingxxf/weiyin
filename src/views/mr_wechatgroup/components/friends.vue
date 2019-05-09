@@ -11,14 +11,16 @@
 				<section class="transfer-left">
 					<div>
 						<el-select size="small" class="ele-select"
-							v-model="table.groupId"
+							v-model="table.groupName"
 							@change="page=1, init()" placeholder="请选择分组">
+							<el-option v-if="groups.length>0" label="全部分组" value="全部分组"></el-option>
 							<el-option
 								v-for="(item,index) in groups"
-								:key="item.wx_user_group_id"
-								:label="item.wx_user_group_id ? item.wx_user_group_name+'('+item.userName+')': item.wx_user_group_name"
-								:value="item.wx_user_group_id"></el-option>
+								:key="index"
+								:label="item.wx_user_group_name != '全部分组'? item.wx_user_group_name+'('+item.userName+')': item.wx_user_group_name"
+								:value="item.wx_user_group_name != '全部分组'? item.wx_user_group_name+'('+item.userName+')'+item.wx_user_group_id: item.wx_user_group_name"></el-option>
 						</el-select>
+
 						<el-input
 							class="ele-input"
 							v-model="table.wxUserName"
@@ -31,13 +33,13 @@
 						@current-change="handleSelectionChange"
 						:data="groupList"
 						class="ele-table-init"
-						height="340"
+						:max-height="420"
 						v-loading="loading">
 						<el-table-column prop="wx_username" label="微信号" align="left" width="165">
 							<template slot-scope="scope">
 								<el-popover trigger="hover" placement="top">
 						          	<p>{{scope.row.wx_username + (scope.row.nickname ? `(${scope.row.nickname})` : '')}}</p>
-						          	<div slot="reference" class="no-wrap">
+						          	<div slot="reference" class="no-wrap no-width">
 										<span class="no-wrap">{{scope.row.wx_username + (scope.row.nickname ? `(${scope.row.nickname})` : '')}}</span>
 						          	</div>
 						        </el-popover>
@@ -51,7 +53,7 @@
 							</template>
 						</el-table-column>
 					</el-table>
-					<div class="pagination" v-if="total>0">
+					<div class="pagination" v-if="total>10">
 						<el-pagination
 							@current-change="handleCurrentChange"
 							@size-change="handleSizeChange"
@@ -74,8 +76,8 @@
 						:data="selectorItems"
 						class="ele-table-init"
 						@selection-change="handleSelectionChange"
-						height="340">
-						<el-table-column label="序号" width="50" align="left">
+						:max-height="400">
+						<el-table-column label="序号" width="60" align="left">
 							<template slot-scope="scope">
 								<span>{{scope.$index+1}}</span>
 							</template>
@@ -91,13 +93,13 @@
 								<!--<span class="no-wrap">{{scope.row.wx_username}}</span>-->
 							</template>
 						</el-table-column>
-						<el-table-column label="好友" align="right" width="80">
+						<el-table-column label="好友" align="left" width="80">
 							<template slot-scope="scope">
 								<span class="getFriend"  @click="getFriends(scope.row)">{{ scope.row.length }}个好友</span>
 							</template>
 						</el-table-column>
 					</el-table>
-					<div class="total-line" v-if="selectorItems.length>0">共 <span class="blue">{{ selectorItems.length}}</span> 条记录</div>
+					<div class="total-line" v-if="selectorItems.length">共 <span class="blue">{{ selectorItems.length}}</span> 条记录</div>
 				</section>
 			</div>
 			<div slot="footer" class="dialog-footer">
@@ -118,8 +120,8 @@
 					v-loading="friendsLoading"
 					@selection-change="screenFriendHandle"
 					>
-					<el-table-column type="selection" width="50" align="left"> </el-table-column>
-					<el-table-column label="微信号" width="180" align="left">
+					<el-table-column type="selection" width="55" align="left"> </el-table-column>
+					<el-table-column label="微信号" width="230" align="left">
 						<template slot-scope="scope">
 							<el-popover trigger="hover" placement="top">
 					          	<p>{{ friendsList[scope.$index].contact_wxuser_name }}</p>
@@ -131,7 +133,7 @@
 							<!--<span>{{ friendsList[scope.$index].contact_wxuser_name }}</span>-->
 						</template>
 					</el-table-column>
-					<el-table-column prop="pass_time" label="添加时间" show-overflow-tooltip align="right">
+					<el-table-column prop="pass_time" label="添加时间" show-overflow-tooltip align="left">
 						<template slot-scope="scope">
 							<span>{{ friendsList[scope.$index].pass_time }}</span>
 						</template>
@@ -178,17 +180,14 @@
 				clearShow: false, // 是否清空好友
 				friendsIds: [],
 				selectorItemsIds: [],
-				table: { groupId: '', wxUserName: '' },
+				table: { groupName: '', wxUserName: '' },
 				selectorItemsCenter: [],
 				selectorItems: [],
 				selectorIds: [],
 				page: 1,
 				pageSize: 10,
 				total: 0,
-				groups: [{
-		          wx_user_group_name: '全部分组',
-		          wx_user_group_id: null
-		        }],
+				groups: [],
 				loading: false,
 				cacheGroupList: [],
 				groupList:  [],  // 选择好友列表
@@ -236,7 +235,7 @@
 					this.groupList = newValue
 					this.total = this.groupList.length
 					this.getGroupList()
-					this.table =  { groupId: '', wxUserName: '' }
+					this.table =  { groupName: '', wxUserName: '' }
 				},
 				deep: true
 			},
@@ -248,16 +247,18 @@
 					if(this.totalGroup.length>0) {
 						this.getGroupList()
 					}
-					this.table =  { groupId: '', wxUserName: '' }
+					this.table =  { groupName: '', wxUserName: '' }
 				},
 				deep: true
 			},
 			webStyle: {
 				handler(newValue, oldValue) {
-					if (newValue == '自定义选择') {
+					if (newValue == '3') {
 						this.groupList = this.selectors
 						this.getGroupList()
-					} else if(newValue == '按分组选择') {
+						this.table =  { groupName: '', wxUserName: '' }
+					} else if(newValue == '2') {
+						this.table =  { groupName: '', wxUserName: '' }
 						this.groups = this.totalGroup
 						if(this.totalGroup.length>0) {
 							this.getWebList()
@@ -268,8 +269,8 @@
 					} else {
 						this.getGroupList()
 						this.selectorItemsIds = []
+						this.table =  { groupName: '', wxUserName: '' }
 					}
-					this.table =  { groupId: '', wxUserName: '' }
 				},
 				deep: true
 			},
@@ -366,15 +367,7 @@
 				this.getFriends()
 			},
 			submitFriends() { // 确定选取微信下的好友
-				if (!this.c_item.length) { 
-					this.screenFriendShow = false 
-					const index = this.selectorItemsIds.indexOf(this.itemWebName.wx_user_id)
-					if (index >= 0) {
-						this.selectorItems.splice(index, 1)
-						this.selectorItemsIds.splice(index, 1)
-					}
-					return 
-				}
+				if (!this.c_item.length) return this.screenFriendShow = false
 				if (this.selectorItemsIds.length) {
 					const index = this.selectorItemsIds.indexOf(this.itemWebName.wx_user_id)
 					if (index < 0) {
@@ -396,10 +389,10 @@
 				} else {
 					this.selectorItemsIds.push(this.itemWebName.wx_user_id)
 					this.selectorItems.push({
-						wx_username: this.itemWebName.wx_username,
-						wx_user_id: this.itemWebName.wx_user_id,
-						contact_wxuser_arr: this.c_item,
-						length: this.c_item.length
+					wx_username: this.itemWebName.wx_username,
+					wx_user_id: this.itemWebName.wx_user_id,
+					contact_wxuser_arr: this.c_item,
+					length: this.c_item.length
 					})
 				}
 				this.screenFriendShow = false
@@ -410,19 +403,27 @@
 				this.screenFriendShow = false
 			},
 			init() {  // 获取微信列表
-				if(this.webStyle =='全部微信号') {
+				if(this.webStyle ==1) {
 					this.loading = true
-					const params = {
-						...{
+					let params = {
 						pageNo: this.page,
-						length: this.pageSize,
-						isOnline: 1,
-						searchSign: 1
-						},
-						...this.table
+						length: this.pageSize
 					};
-					if(!this.table.groupId) { delete params.groupId }
-					if(this.table.wxUserName === '') delete params.wxUserName
+					if(this.table.groupName ==''  &&  this.table.wxUserName == '') {
+						params['searchSign'] = 0;
+						params['groupName'] = ''
+					}else {
+						params['searchSign'] = 1;
+					}
+					if( this.table.groupName=='全部分组' && this.table.wxUserName == ''){
+						params['searchSign'] = 0;
+					}
+					if(this.table.groupName !='' && this.table.groupName!='全部分组'){
+						params['groupName'] = this.table.groupName.split('(')[0]
+					}
+					if(this.table.wxUserName != '') {
+						params['wxUserName'] = this.table.wxUserName;
+					}
 
 					this.$http("wx_user_list_search_key", "POST", params)
 						.then(res => {
@@ -438,11 +439,11 @@
 					            });
 					        }
 					})
-				}else if (this.webStyle == '按分组选择'){
-					if(this.table.groupId != ''){
+				}else if (this.webStyle == 2){
+					if(this.table.groupName != '全部分组'){
 						let ids = []
 						this.groups.forEach((v,i) => { ids.push(v.wx_user_group_id) })
-						let groupid = this.table.groupId
+						let groupid = (this.table.groupName).split(')')[1]
 						let params = {
 							groupIds: groupid?groupid: ids.join(','),
 							length: this.pageSize,
@@ -454,24 +455,25 @@
 							if(res.data.error_code == 0) {
 								this.groupList = res.data.data.result
 								this.total = res.data.data.total_count
+//								console.log(res.data.data.total_count)
 							}
 						})
 					}else {
 						this.getWebList()
 					}
 				}else {
-					let search = this.table.groupId
+					let search = this.table.groupName.split('(')[0]
 					let searchName = this.table.wxUserName
 					let arrList = []
 					let arrListName = []
 					if (search || searchName) {
-						this.groupList = this.selectors
-						this.groupList.forEach((v,i) => {
-							if(v.groupId.toString().includes(search) && v.wx_username.includes(searchName)){
-							   arrList.push(v)
-							}
-						})
-						this.groupList = arrList
+							this.groupList = this.selectors
+							this.groupList.forEach((v,i) => {
+								if(v.wx_user_group_name.indexOf(search)>=0 && v.wx_username.indexOf(searchName)>=0){
+								   arrList.push(v)
+								}
+							})
+							this.groupList = arrList
 			        }
 					if(search == "全部分组" && searchName=="") {
 						this.groupList = this.selectors
@@ -487,17 +489,13 @@
 				}
 			},
 			getGroupList() {  // 获取分组列表
-				this.groups = [{
-		          wx_user_group_name: '全部分组',
-		          wx_user_group_id: null
-		        }]
-				if(this.webStyle == '全部微信号') {
+				this.groups = []
+				if(this.webStyle == 1) {
 					let params = {
 						page: this.page,
-						limit: 99999,
-						onlySelf: 0
+						limit: 99999
 					}
-					this.$http('wx_group/group_list', 'POST', params)
+					this.$http('wx_group/list', 'GET', params)
 						.then(res=> {
 							if (res.data.error_code === 0) {
 				            	this.groups = [...res.data.data.result, ...this.groups]
@@ -507,25 +505,23 @@
 				            }
 						})
 
-				}else if(this.webStyle == '按分组选择') {
+				}else if(this.webStyle == 2) {
 					this.getWebList()
 				}else {
 					this.groupList = this.selectors  // 把选取的微信号放在表格中
 					this.groups = this.selectors
+
 					let groupsArr = []
-					let arr = []
-					let arr1 = []
+					let obj = {}
 					this.groups.forEach((v,i) => {
 						v.wx_user_group_name = v.group_name
-						if(!arr.includes(v.group_name+v.userName)){
-							arr.push(v.group_name+v.userName)
-							arr1.push({
-								wx_user_group_name: v.group_name,
-								userName: v.userName,
-								wx_user_group_id: v.groupId})
+						if(!obj[v.wx_user_group_name]){
+							groupsArr.push(v)
+							obj[v.wx_user_group_name] = true;
 						}
 					})
-					this.groups = arr1
+
+					this.groups = groupsArr
 					this.total = 0
 				}
 			},
@@ -565,7 +561,8 @@
 				this.clearShow = false
 			},
 			screenFriendHandle(val) { // 筛选好友
-				this.c_item = val;
+				this.c_item = val
+//				console.log(val)
 			}
 		}
 	}
@@ -581,6 +578,12 @@
 			width: 1000px;
 		}
 	}
+	.no-wrap{
+    width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 	.code-transfer {
 		display: flex;
 		overflow: hidden;

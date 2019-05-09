@@ -174,8 +174,8 @@
 			 //获取加粉列表
         getTabledataList(){
             this.$http('plan/plan_list','POST',{
-                endTime:this.endTime,
-                startTime:this.startTime,
+                endTime:this.endTime + " 23:59:59",
+                startTime:this.startTime + " 00:00:01",
                 length:this.limit,
                 pageNo:this.page,
                 templateName:"加粉"

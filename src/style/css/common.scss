@@ -845,13 +845,19 @@ b {
         height: 100px;
         width: 628px;
     }
-    .input-name {
-        .el-input__inner {
-            width: 200px;
-            height: 35px;
-            line-height: 35px;
+    .demo-ruleForm {
+        .input-name {
+            .el-input__inner {
+                width: 200px;
+                height: 35px;
+                line-height: 35px;
+            }
+        }
+        .input-name.el-form-item {
+            margin-bottom: 10px;
         }
     }
+    
     .el-form-item.is-success .el-input__inner,
     .el-form-item.is-success .el-input__inner:focus,
     .el-form-item.is-success .el-textarea__inner,
@@ -959,7 +965,7 @@ b {
     }
     .group-submit-modal {
         .el-dialog {
-            width: 578px;
+            width: 510px;
             margin-top: 0 !important;
             position: absolute;
             top: 50%;
@@ -1046,8 +1052,8 @@ b {
         }
     }
     .el-form-item.is-required:not(.is-no-asterisk)>.el-form-item__label:before {
-        float: right;
-        margin-left: 4px;
+//      float: right;
+//      margin-left: 4px;
     }
     input,
     textarea::-webkit-input-placeholder {
@@ -1089,7 +1095,7 @@ b {
     }
     .pagination {
         .el-pager li {
-            min-width: 28.5px;
+            min-width: 18px;
         }
     }
     .web-time {
@@ -1133,16 +1139,14 @@ b {
       .el-form-item__label:before {
           content: '*';
           color: #F56C6C;
-          float: right;
-          margin-left: 4px;
+          margin-right: 4px;
       }
   }
   .friend-star {
       .el-form-item__label:before {
           content: '*';
           color: #F56C6C;
-          float: right;
-          margin-left: 4px;
+          margin-right: 4px;
       }
   }
   .border-right {
@@ -1190,6 +1194,40 @@ b {
   .mi-height {
       .el-table__empty-block {
         min-height: 200px;
+    }
+  }
+  .pagination .el-pagination__total {
+      margin-right: 0;
+  }
+  .code-modal {
+      .el-pagination {
+          padding: 2px 0;
+      }
+    .el-pagination .el-select .el-input {
+      margin: 0;
+      width: 90px;
+    }
+    .el-pager li {
+        padding: 1px;
+    }
+  }
+  .friend-star.el-form-item {
+      margin-bottom: 10px !important;
+  }
+  .group-model {
+      .el-dialog__body {
+          padding: 30px 20px;
+      }
+      .el-dialog__header {
+        padding: 0;
+      }
+      .el-dialog {
+        width: 380px;
+        margin-top: 0 !important;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
   }
 }

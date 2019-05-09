@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import {allMaps,accoutChildren,routerMap,log} from "@/router/addMaps"
+import { http } from '@/api/http'
 Vue.use(Vuex)
 
 function deepCopy(obj) {
@@ -31,7 +32,8 @@ const state = {
   accountList:[],
   addRouters:[],
   sideBarMenu:[],
-  webSelectData: []
+  webSelectData: [],
+  groupData: null
 }
 const mutations={
 	indentity(state){
@@ -45,6 +47,9 @@ const mutations={
 	},
 	setWebSelData(state, data) {
 		state.webSelectData = data
+	},
+	setgroupData(state, data) {
+		state.groupData = data
 	}
 }
 const actions={
@@ -106,12 +111,33 @@ const actions={
     state.sideBarMenu=[];
     sessionStorage.clear();
     //sessionStorage.removeItem("menuList");
+  },
+  getGroupData({ state, commit }, opt) {
+  	return new Promise((resolve,reject) => {
+  		!!state.groupData ? resolve(state.groupData) :
+  		http('wx_group/group_list', 'POST', opt)
+	  	.then(res => {
+	  		if (res.data.error_code === 0) {
+		  		const { result } = res.data.data
+		  		commit('setgroupData', result)
+		  		resolve(result)
+		  	} else {
+		  		reject(res)
+		  	}
+	  	}).catch((e) => {
+	  		reject(e)
+	  	})
+  	})
   }
 }
 
 const getters={
-  addRouters:state=>state.addRouters
+  addRouters:state=>state.addRouters,
+  groupData(state) {
+  	return state.groupData
+  }
 }
+
 const store = new Vuex.Store({
   state,
   mutations,

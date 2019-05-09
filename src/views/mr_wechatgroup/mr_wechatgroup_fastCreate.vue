@@ -184,7 +184,7 @@
           <div class="code-type">
             <span @click="showUpload">手动上传</span>或<span @click="showGroupList">选择系统二维码</span>
             <!-- <el-button class="ele-btn check-code" :class="[{'ele-disabled':codeTextStatus==1}]" @click="checkCode">{{codeTextStatus | filterCheckText}}</el-button> -->
-            <el-button class="ele-btn check-code" :class="[codeTextStatus==1?'ele-disabled':'']" @click="checkCode">{{codeTextStatus | filterCheckText}}</el-button>
+            <!--<el-button class="ele-btn check-code" :class="[codeTextStatus==1?'ele-disabled':'']" @click="checkCode">{{codeTextStatus | filterCheckText}}</el-button>-->
           </div>
         </div>
         <div class="group-total" v-if="showCodeList.length!=0">已上传<span>{{showCodeList.length}}</span>张二维码 <!--<span>{{showCodeLen}}</span>个微信号--></div>
@@ -466,7 +466,7 @@
         showFriendList:false,
         tableCheckFriends:[],
         qrcodeList:[],
-        maxUpload:998,
+        maxUpload:50,
         fileList:[],
         showCodeList:[],
         //二维码选择微信号部分
@@ -1455,7 +1455,7 @@
               });
               for(let key in json3){
                 if(json3[key]>1){
-                  this.$message.warning("存在相同二维码，系统直接过滤");
+                  _this.$message.warning("存在相同二维码，系统直接过滤");
                 }
               }
               let forMatArr=[...lastArray,...newArr3];
@@ -1582,7 +1582,7 @@
                       });
                       for(let key in json3){
                         if(json3[key]>1){
-                          this.$message.warning("存在相同二维码，系统直接过滤");
+                          _this.$message.warning("存在相同二维码，系统直接过滤");
                         }
                       }
                       let forMatArr=[...newArr,...newArr3];
@@ -1846,10 +1846,7 @@
 
         codeList.map((v,k)=>{
           if(v.isQrcode||v.isGroup){
-            let info={};
-            info.qrCode=v.sQrcode;
-            info.roomUserName=v.roomUserName;
-            submitCodeList.push(info);
+            submitCodeList.push(v.sQrcode);
           }
         });
         //批量拉人入群
@@ -1857,10 +1854,11 @@
           maxMember:formInfo.defaultPserson*1,//群聊限制人数
           planName: formInfo.taskName,//任务名称
           //maxTimes:formInfo.maxTimes,
-          qrCodeInfo:submitCodeList,//二维码,
+          qrCodes:submitCodeList,//二维码,
           useChatName:_this.useChatName,
           useCodeChatName:_this.useCodeChatName,
-          planKey:formInfo.chatgroupName+new Date().getTime()
+          // planKey:formInfo.chatgroupName+new Date().getTime()
+          planKey:new Date().getTime()+''
         };
         if(_this.useChatName){
           parmas.roomname=formInfo.chatgroupName;//群名称
@@ -2019,24 +2017,24 @@
             return;
           };
         }
-        if(_this.showCodeList.length!=0){
-          if(!_this.submitCheckFlag){
-            _this.$message.warning("正在检查群二维码无法提交，请稍后");
-            return;
-          };
-          if(_this.codeTextStatus!=2&&newList.length!=0){
-            _this.$message.warning("请先检查群二维码");
-            return;
-          };
-          if(unCheckLen>0){
-            _this.$message.warning("请删除手动上传未检查或检查失败的二维码");
-            return;
-          }
-          if(checkLen!=newList.length){
-            _this.$message.warning("请删除未检查成功的二维码");
-            return;
-          }
-        };
+        // if(_this.showCodeList.length!=0){
+        //   if(!_this.submitCheckFlag){
+        //     _this.$message.warning("正在检查群二维码无法提交，请稍后");
+        //     return;
+        //   };
+        //   if(_this.codeTextStatus!=2&&newList.length!=0){
+        //     _this.$message.warning("请先检查群二维码");
+        //     return;
+        //   };
+        //   if(unCheckLen>0){
+        //     _this.$message.warning("请删除手动上传未检查或检查失败的二维码");
+        //     return;
+        //   }
+        //   if(checkLen!=newList.length){
+        //     _this.$message.warning("请删除未检查成功的二维码");
+        //     return;
+        //   }
+        // };
         tableList.map((v,k)=>{
           if(!terminalIdJson[v.terminalId]){
             terminalIdJson[v.terminalId]=1;

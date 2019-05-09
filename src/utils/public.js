@@ -68,6 +68,19 @@ export default {
 						baseUrl:"http://47.111.97.243:8888/api/v1/"
 					}
 					break;
+					case 6:
+					publicUrl={	// 测试2
+						resourceUrl : "http://172.16.10.155:8000/",//资源接口
+						newResourceUrl: 'http://172.16.10.155/', // 无端口
+						linkUrl: "http://172.16.10.150:8888/",    //测试接口
+						materTestUrl: 'http://116.62.68.173:8080/', // 素材公网测试
+						loginUrl:'http://172.16.10.152/#/',       //登录页
+						production:false,
+						chatClientUrl:"http://47.98.100.251/Automaticupdate.exe",
+						redisUrl: "http://116.62.222.134/",
+						baseUrl:"http://172.16.10.150:8888/api/v1/"
+					}
+					break;
 			}
 			
 			

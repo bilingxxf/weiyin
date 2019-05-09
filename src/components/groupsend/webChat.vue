@@ -1,45 +1,46 @@
 <template>
 	<div>
-		<el-dialog 
-			title="选择微信号" 
-			:visible.sync="value" 
-			:before-close="handleClose" 
-			class="code-modal "
+		<el-dialog
+			title="选择微信号"
+			:visible.sync="value"
+			:before-close="handleClose"
+			class="code-modal"
 			min-height="200px"
 			width="860px">
 			<div class="code-transfer mi-height">
 				<section class="transfer-left">
 					<div>
-						<el-select 
-							size="small" 
-							class="ele-select" 
-							v-model="table.groupName"
-							@change="page=1, getList()" 
-							placeholder="全部分组" clearable>
-							<el-option 
-								v-for="item in groups" 
-								:key="item.wx_user_group_name" 
-								:label="item.wx_user_group_name" 
-								:value="item.wx_user_group_name">
+						<el-select
+							size="small"
+							class="ele-select"
+							v-model="table.groupId"
+							@change="page=1, getList()"
+							placeholder="全部分组" >
+							<!--<el-option v-if="groups.length>0" label="全部分组" value="全部分组"></el-option>-->
+							<el-option
+								v-for="item in groups"
+								:key="item.wx_user_group_id"
+								:label="item.wx_user_group_id ? item.wx_user_group_name+'('+item.userName+')': item.wx_user_group_name"
+								:value="item.wx_user_group_id">
 							</el-option>
 						</el-select>
-	
-						<el-input 
-							@change="page=1, getList()" 
-							class="ele-input" 
-							placeholder="请输入微信号或昵称查询" 
-							suffix-icon="el-icon-search" 
+
+						<el-input
+							@change="page=1, getList()"
+							class="ele-input"
+							placeholder="请输入微信号或昵称查询"
+							suffix-icon="el-icon-search"
 							v-model="table.wxUserName">
 						</el-input>
 					</div>
-					<el-table 
-						ref="multipleTable" 
-						@selection-change="handleSelectionChange" 
-						:data="groupList" 
-						class="ele-table-init" 
-						:max-height="420" 
+					<el-table
+						ref="multipleTable"
+						@selection-change="handleSelectionChange"
+						:data="groupList"
+						class="ele-table-init"
+						height="340"
 						v-loading="loading">
-						<el-table-column type="selection" fixed></el-table-column>
+						<el-table-column type="selection" width="35" fixed></el-table-column>
 						<el-table-column label="微信号" align="left">
 							<template slot-scope="scope">
 								<el-popover trigger="hover" placement="top">
@@ -54,14 +55,14 @@
 						</el-table-column>
 						<el-table-column prop="phone" label="手机号" align="right"></el-table-column>
 					</el-table>
-					<div class="pagination" v-if="total!=0">
-						<el-pagination 
+					<div class="pagination" v-if="total>0">
+						<el-pagination
 							@current-change="handleCurrentChange"
-							@size-change="handleSizeChange" 
-							:page-sizes="[10, 20, 50]" 
-							:current-page="page" 
-							:page-size="pageSize" 
-							layout="sizes, total,prev,pager, next" 
+							@size-change="handleSizeChange"
+							:page-sizes="[10, 20, 50]"
+							:current-page="page"
+							:page-size="pageSize"
+							layout="sizes, total,prev,pager, next"
 							:total="total">
 						</el-pagination>
 					</div>
@@ -73,12 +74,12 @@
 					<div class="edit-group">
 						<span @click="deleteAllSelectors">清空全部</span>
 					</div>
-					<el-table 
-						ref="multipleTable" 
-						:data="selectorItems" 
+					<el-table
+						ref="multipleTable"
+						:data="selectorItems"
 						class="ele-table-init"
-						:min-height="200"
-						:max-height="420">
+						height="340"
+						>
 						<el-table-column label="序号" width="70">
 							<template slot-scope="scope">
 								<span>{{scope.$index+1}}</span>
@@ -109,9 +110,9 @@
 				<el-button class="ele-default" @click="handleClose">取消</el-button>
 			</div>
 		</el-dialog>
-		<el-dialog 
-			title="是否清空？" 
-			:visible.sync="clearShow" 
+		<el-dialog
+			title="是否清空？"
+			:visible.sync="clearShow"
 			class="clear-dialog"
 			>
 			<div class="code-transfer">
@@ -133,7 +134,7 @@
 				clearShow: false,
 				table: {
 					wxUserName: '',
-					groupName: ''
+					groupId: ''
 				},
 				selectorItemsCenter: [],
 				selectorItems: [],
@@ -162,6 +163,10 @@
 			value: {
 				type: Boolean,
 				default: false
+			},
+			webStyles: {
+				type: String,
+				default: null
 			}
 		},
 		created() {
@@ -177,6 +182,14 @@
 					this.transferRight()
 					this.$emit('returnIds', this.selectorIds)
 					// this.filterLeftData()
+				},
+				deep: true
+			},
+			webStyles: {
+				handler(newValue, oldValue) {
+//					console.log(newValue)
+					this.table = { wxUserName: '', groupId: '' }
+					if(newValue == '自定义选择') { this.getList() }
 				},
 				deep: true
 			}
@@ -206,7 +219,7 @@
 				}else {
 					this.$message.error('还没有选择微信号~~')
 				}
-				
+
 //				this.selectorItems = []
 //				this.selectorIds = []
 //				this.groupList = [...this.cacheGroupList]
@@ -250,7 +263,8 @@
 			getGroupList() {
 				API.group_list({
 						limit: 99999,
-						page: 1
+						page: 1,
+						onlySelf: 0
 					}).then(res => {
 						if(res.data.error_code === 0) {
 							this.groups = [...res.data.data.result, ...this.groups]
@@ -266,20 +280,15 @@
 					...{
 						pageNo: this.page,
 						length: this.pageSize,
-						searchSign: 0,
+						searchSign: 1,
 						isOnline: 1
 					},
 					...this.table
 				}
-				if(this.table.groupName === '全部分组') {
-					parmas.groupName = null
-					parmas.searchSign = 0
-				} else if(this.table.groupName != '') {
-					parmas.searchSign = 1
-				}
-				if(this.table.wxUserName != '') {
-					parmas.searchSign = 1
-				}
+				if (!this.table.groupId)  delete parmas.groupId
+        		if (!this.table.wxUserName) delete parmas.wxUserName
+				
+				
 				API.wx_list(parmas).then(res => {
 					if(res.data.error_code == 0) {
 						this.loading = false;
@@ -303,7 +312,6 @@
 		text-align: center;
 		margin-top: 15px;
 	}
-	
 	.code-modal {
 		.el-dialog {
 			width: 1000px;
@@ -321,7 +329,7 @@
 			color: #000000;
 		}
 	}
-	
+
 	.code-transfer {
 		display: flex;
 		overflow: hidden;
@@ -362,6 +370,6 @@
 		font-weight: 700;
 	}
 	.no-width {
-		width: auto !important; 
+		width: auto !important;
 	}
 </style>

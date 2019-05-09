@@ -41,7 +41,7 @@
                 </el-select>
                 <el-select v-model="selectLabelValue" @change="currentPage=1,selectInit()" class="ele-select"
                   style="margin-left:20px" placeholder="请选择标签">
-                  <el-option label="全部标签" value=""></el-option>
+                  <el-option label="全部好友" value=""></el-option>
                   <el-option label="无标签" value="0"></el-option>
                   <el-option v-for="item in labelListData" :key="item.wxContactLabelId" :label="item.labelName"
                     :value="item.wxContactLabelId">
@@ -362,7 +362,7 @@
           page: this.currentPage,
           limit: this.pageSize,
           wx_user_name: wxAccount,
-          contact_wxuser_name: wxUserName,
+          contact_wxuser_name: wxUserName
         }).then(res => {
           this.loading = false;
           if (res.data.data.result.length !== 0) {

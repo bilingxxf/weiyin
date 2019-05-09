@@ -3,13 +3,12 @@
 		:visible.sync="value" 
 		:before-close="handleClose"
 		center 
-		class="group-sel-modal element-modal"
+		class="element-modal group-model"
 		> 
 		<div class="dialog-content">
-			<div class="grounp-checkout" v-if="sysGroupList.length>0" v-for="(group,groupIndex) in sysGroupList">
+			<!--<div class="grounp-checkout" v-if="sysGroupList.length>0" v-for="(group,groupIndex) in sysGroupList">
 				<el-button 
 					:class="group.check?'checked  grounp-title':'grounp-title'" 
-					class="grounp-title"
 					@click="selectAll(group,groupIndex)"  
 					v-if="role && role=='ROLE_USER'" >{{group.groupName}}</el-button>
 				<div class="grounp-list">
@@ -19,8 +18,21 @@
 						>{{item.wx_user_group_name}}({{item.wx_sum_count}})
 					</div>
 				</div>
+			</div>-->
+			<div class="grounp-checkout">
+				<el-tree
+				  :min-height="200"
+				  :data="treedata"
+				  show-checkbox
+				  ref="tree"
+				  node-key="id"
+				  @check="nodeCheck"
+				  @check-change="selectNode"
+				  highlight-current
+				  :check-on-click-node="true"
+				  :props="defaultProps">
+				</el-tree>
 			</div>
-			<div v-else>暂无数据~~</div>
 		</div>
 		<span slot="footer" class="dialog-footer">
 			<el-button type="primary" @click="submitSelectors">确 定</el-button>
@@ -33,7 +45,7 @@
 export default {
 	data() {
 		return {
-			limit: 1000000000,
+			limit: 99999,
 			page: 1,
 			role: sessionStorage.getItem("indentity"),
 			username: sessionStorage.getItem("username"),
@@ -41,6 +53,12 @@ export default {
 			arr: [],
 			sysGroupList:[],
 			selectArr:[],
+			treedata: [],
+			defaultProps: {
+          		children: 'children',
+          		label: 'label'
+        	},
+        	groupLists: []
 		}
 	},
     model: {
@@ -94,43 +112,87 @@ export default {
 					}
 				})
 			})
-			
-			console.log(this.selectArr)
 		},
 		getlist() {
 			let params = {}
 			params['limit'] = this.limit
 			params['page'] = this.page;
 			params['onlyOnline'] = 1
+			params['onlySelf'] = 0
 			this.$http("wx_group/group_list", "POST",params)
 			.then(res => {
 				if (res.data.error_code == 0) {
-					let result=res.data.data.result;
-					let json={};
-					let formatResult=[];
-					result.map((v,k)=>{
-						v.check = false;
-						if(!json[v.userName]){
-							json[v.userName]=1;
-						}else{
-							!json[v.userName]++;
-						}
-					});
-					for(let key in json){
-						let fjson={};
-						let arr=result.filter((v,k)=>{
-							return v.userName==key&&v.wx_sum_count>0;
-						});
-						fjson.groupName=key;
-						if(arr.length>0){
-							formatResult.push(fjson)
-							fjson.list=arr;
-						}
-					};
-					this.sysGroupList = formatResult
+					this.groupLists = res.data.data.result
+					this.$emit('returnGroupList', this.groupLists)
+					let respose = res.data.data.result;
+					respose = respose.filter((v, i) => {
+						return v.wx_sum_count>0 
+					})
+					var map = {},
+					dest = [];
+					for(var i = 0; i < respose.length; i++){
+					    var ai = respose[i];
+					    if(!map[ai.userName]){
+					        dest.push({
+					        	userName: ai.userName,
+					            children: [ai],
+					            id: i,
+					            label: ai.userName
+					        });
+					        map[ai.userName] = ai;
+					    }else{
+					        for(var j = 0; j < dest.length; j++){
+					            var dj = dest[j];
+					            if(dj.userName== ai.userName){
+					                dj.children.push(ai);
+					                break;
+					            }
+					        }
+					    }
+					}
+					this.treedata = dest
+					this.treedata.forEach((v, i) => {
+						v.children.forEach((item, j) => {
+							item.id = item.wx_user_group_id;
+							item.label = item.wx_user_group_name +'('+ item.wx_sum_count +')'
+						})
+					})
+					
+//					let result=res.data.data.result;
+//					let json={};
+//					let formatResult=[];
+//					result.map((v,k)=>{
+//						v.check = false;
+//						if(!json[v.userName]){
+//							json[v.userName]=1;
+//						}else{
+//							!json[v.userName]++;
+//						}
+//					});
+//					for(let key in json){
+//						let fjson={};
+//						let arr=result.filter((v,k)=>{
+//							return v.userName==key&&v.wx_sum_count>0;
+//						});
+//						fjson.groupName=key;
+//						if(arr.length>0){
+//							formatResult.push(fjson)
+//							fjson.list=arr;
+//						}
+//					};
+//					this.sysGroupList = formatResult
 				}
 			})
 		},
+		nodeCheck(node,b,c) {
+			let data = b.checkedNodes
+			this.selectArr = []
+			data.forEach((v,i) => {
+				if(!v.children) this.selectArr.push(v)
+			})
+//			console.log(this.selectArr)
+		},
+		selectNode(val, checked) { },
 		handleClose() {
         	this.$emit('change', false)
       	},
@@ -153,14 +215,22 @@ export default {
 		}
 	}
 	.grounp-checkout {
-		display: flex;
+		/*display: flex;
 		padding: 0 40px;
+		flex: 1;*/
+		min-height: 100px;
+		max-height: 400px;
+		.el-tree {
+			width: 340px;
+			/*padding: 0 100px;*/
+		}
 		.grounp-title {
 			padding: 0;
 			margin-right: 16px;
 			text-align: center;
 			height: 32px;
 			width: 90px;
+			flex: 0 0 90px;
 		}
 		.grounp-list {
 			.el-checkbox {
@@ -177,9 +247,6 @@ export default {
 			height: auto !important;
 			height: 30px !important;
 		}
-	}
-	div.grounp-checkout:last-child {
-		margin-bottom: 8px;
 	}
 	.text {
 		text-align: center;

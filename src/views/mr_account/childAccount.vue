@@ -459,10 +459,10 @@
           parmas.userName = search.userName;
         };
         if (search.startTime != "") {
-          parmas.startTime = search.startTime;
+          parmas.startTime = search.startTime + " 00:00:01";
         };
         if (search.endTime != "") {
-          parmas.endTime = search.endTime;
+          parmas.endTime = search.endTime + " 23.59:59";
         };
         this.$http("child_user/list", "POST", parmas).then(res => {
           if (res.data.error_code == 0) {

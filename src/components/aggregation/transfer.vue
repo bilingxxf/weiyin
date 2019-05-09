@@ -12,16 +12,16 @@
         <el-select
 				size="small"
 				class="ele-select"
-				v-model="table.groupName"
+				v-model="table.groupId"
         @change = "page=1, getList()"
 				placeholder="全部分组"
 				clearable
 				>
         <el-option
 					v-for="item in groups"
-					:key="item.wx_user_group_name"
-					:label="item.wx_user_group_name"
-					:value="item.wx_user_group_name"
+					:key="item.wx_user_group_id"
+					:label="item.wx_user_group_id ? item.wx_user_group_name+'('+item.userName+')': item.wx_user_group_name"
+					:value="item.wx_user_group_id"
 				></el-option>
 			</el-select>
     
@@ -108,7 +108,7 @@
       return {
         table: {
           wxUserName: '',
-          groupName: ''
+          groupId: ''
         },
         selectorItemsCenter: [],
         selectorItems: [],
@@ -208,7 +208,8 @@
       getGroupList() {
         API.group_list({
           limit: 99999,
-          page: 1
+          page: 1,
+          onlySelf: 0
         }).then(res => {
             if (res.data.error_code === 0) {
               this.groups = [...res.data.data.result, ...this.groups]
@@ -228,7 +229,7 @@
           searchSign: 1
           }, ...this.table
         }
-        if (this.table.groupName === '全部分组' || !this.table.groupName)  delete parmas.groupName
+        if (!this.table.groupId)  delete parmas.groupId
         if (!this.table.wxUserName) delete parmas.wxUserName
          API.wx_list(parmas).then(res => {
           if (res.data.error_code == 0) {

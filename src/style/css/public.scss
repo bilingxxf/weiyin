@@ -883,7 +883,7 @@
 		line-height: 23px !important;
 	}
 	.el-textarea__inner{
-		font-size: 12px;	
+		font-size: 12px;
 	}
 }
 
@@ -894,4 +894,10 @@
 			margin-left: 0;
 		}
 	}
+}
+.no-wrap{
+  width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

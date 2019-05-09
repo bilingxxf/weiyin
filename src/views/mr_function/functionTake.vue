@@ -302,9 +302,9 @@
         dialogVisible: false, //上传
         imgUpload: false,
         // startTime:`${new Date(new Date().setMinutes((new Date().getMinutes()+5)))}`,/** 发圈时间 */
-        startTime:dayjs().add(5,'minute'),
+        startTime:dayjs().add(1,'minute'),
         startTimeOptions:{
-          selectableRange:`${new Date().getHours()}:${new Date().getMinutes() + 5}:00}-23:59:59`
+          selectableRange:`${new Date().getHours()}:${new Date().getMinutes() + 1}:00}-23:59:59`
         },
         //复选框
         checkAll: false,

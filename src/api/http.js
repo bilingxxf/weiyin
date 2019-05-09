@@ -9,11 +9,12 @@ import qs from 'qs'
 // axios.defaults.baseURL = 'http://47.99.198.9:8888/api/v1/'
 // axios.defaults.baseURL = 'http://172.16.0.249:8888/api/v1/'
 
-let config=publicUrl.info(1);
-// let config=publicUrl.info(2);
+// let config=publicUrl.info(1);
+//let config=publicUrl.info(2);
 // let config=publicUrl.info(3);
 // let config=publicUrl.info(4);
 // let config=publicUrl.info(5);
+      let config=publicUrl.info(6);
 
 // 预发布
 // axios.defaults.baseURL = 'http://47.111.98.235:8080/api/v1/'

@@ -26,7 +26,7 @@
 						<el-scrollbar class="scroll-bar">
 							<ul>
 								<li v-for="item in showTableData" :key="item.index" class="nameShowCon">{{item.name || item.id}}</li>
-							</ul>							
+							</ul>
 						</el-scrollbar>
 					</div>
 				</div>
@@ -54,7 +54,7 @@
 						<span>设置验证申请</span><span style="margin-left:14px;color:#409EFF;cursor: pointer;margin-right:20px;" @click="settingVerification">设置</span>
 						<el-checkbox class="check" style="color:#888;" v-model="increaseNickName">增加对方昵称</el-checkbox>
 					</div>
-					
+
 					<ul class="input-list">
 						<li v-for="(item,index) in testInfo" :key="index">
 							<!-- <el-checkbox class="check" style="color:#888;" v-model="item.addName">增加对方昵称</el-checkbox>+ -->
@@ -207,7 +207,7 @@
 				<!--<div class="tip">提交托管加粉后，系统会每天自动下单加粉，用户只需在订单明细中查看加粉详情。</div>-->
 			</div>
 		</div>
-		 
+
 		  <!-- 设置验证-->
 			<Dialog @callback="submitVerification" v-if="dialogFlag == 'setting'">
 				<div class="dialog-content setting-dialog" slot="content">
@@ -225,7 +225,7 @@
 				</div>
 			</Dialog>
 		<Dialog @callback="checkUser" v-if="dialogFlag=='user'">
-			<div class="dialog-content dia-tree" slot="content" style="padding:30px 0 0;"> 
+			<div class="dialog-content dia-tree" slot="content" style="padding:30px 0 0;">
 				<div class="tree">
           <div class="check-all" v-if="tableData.length!=0">
             <el-checkbox v-model="checkAllAccount" @change="toggleCheck">全选</el-checkbox>
@@ -517,7 +517,7 @@
 					this.maxTimeNumber = 7200;
 				}
 			},
-			
+
 			//  getLimit(val){
 			// 	let reg=/\D/g;
 			// 	let _this = this;
@@ -1014,7 +1014,7 @@
 
 				for(let j = 0; j< this.selectTableData.length; j++) {
 					wxUserid.push(this.selectTableData[j].id)
-				
+
 				}
 				if(this.radio == 1) {
 					groupId = this.resourcesValue
@@ -1107,7 +1107,7 @@
               j.children.map((j)=>{
                 if(wxUserid.indexOf(j.id)>-1){
                   if(j.oftenCount>=that.limitNum1&&that.limitNum1!=''){
-										
+
                     wxUserid.splice(wxUserid.indexOf(j.id),1);
                   }
                 }
@@ -1148,7 +1148,7 @@
           planParams["Info"] = helloInit;
 					let params = JSON.stringify(planParams) // 新增的参数
 					data["planParams"] = params;
-					
+
 					this.$http('plan/','POST',data).then((res)=>{
 						if(res.data.error_code == 0) {
 							this.$message({
@@ -1175,7 +1175,7 @@
 					})
 
 					}).catch(() => {
-						
+
 					  });
 				}else{
 				  let tableData=this.tableData;
@@ -1249,7 +1249,7 @@
 								type:'error'
 							})
 					})
-				}	
+				}
 			},
 			radios() {
 				this.radio = 2
@@ -1307,11 +1307,11 @@
 					pageNo:1,
 					userId:sessionStorage.getItem('user_id')
 				}).then(res=>{
-			  			if(res.data.error_code==0){ 
+			  			if(res.data.error_code==0){
 							  if(res.data.data.result.length == 0){
 								  this.testId = 0
 							  }else{
-								  this.testId = res.data.data.result[0].id 
+								  this.testId = res.data.data.result[0].id
 								  let list = res.data.data.result;
 								let arr = list[0].content.split('^')
 								for(let i=0;i<arr.length;i++){
@@ -1321,13 +1321,13 @@
 								}
 							  }
 						  }
-						  
+
 			  		}).catch(err=>{
 			  			this.$message({
 				            message:'获取验证列表失败',
 				            type:'error'
 						})
-					  })		
+					  })
             this.$store.dispatch("showDialog",{
               title:'设置验证',
               showCancel:true,
@@ -1357,7 +1357,7 @@
 				            message:'验证列表添加失败',
 				            type:'error'
 						})
-					  })		
+					  })
 			},
 			getDialogChecked(val,item,index){
 				if(val.checked){
@@ -1392,9 +1392,9 @@
 							settingType:''
 						})
 					}
-				}		
+				}
 			},
-			
+
 		},
 		created(){
 			this.userId=sessionStorage.getItem("user_id");

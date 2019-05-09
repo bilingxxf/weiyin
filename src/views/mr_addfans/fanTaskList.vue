@@ -412,10 +412,10 @@
         let param = {};
         param['childUserId'] = Number(this.selectChildAccountId);
         if (this.startTime != '') {
-          data['startTime'] = this.startTime;
+          data['startTime'] = this.startTime + " 00:00:01";
         }
         if (this.endTime != '') {
-          data['endTime'] = this.endTime;
+          data['endTime'] = this.endTime + " 23:59:59";
         }
         if (this.selectChildAccountId != "") {
           data['param'] = JSON.stringify(param)
@@ -616,6 +616,9 @@
     filters: {
       detectionStatus: function (value) {
         switch(value*1){
+          case -1:
+            return "未开始";
+            break;
           case 0:
             return "加粉中";
             break;

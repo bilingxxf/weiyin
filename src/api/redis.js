@@ -1,4 +1,4 @@
-import {http,config} from './http'
+import {http, config} from './http'
 import postMan from './apis/redis.json'
 
 const resoueceUrl = `${config.redisUrl}api/v2/`
@@ -45,11 +45,30 @@ class Redis {
     return data
   }
 
+  wrapHashParams (params) {
+    const { field_names, value, key } = params
+    const defaultParams = {
+      key,
+      list: []
+    }
+    if (field_names && field_names.constructor === Array) {
+      field_names.map((v, i) => {
+        defaultParams.list[i] = { field_name: v }
+      })
+    } else if (value && value.constructor === Object) {
+      const keys = Object.keys(value)
+      keys.map((v, i) => {
+        defaultParams.list[i] = { field_name: v, value: value[v] }
+      })
+    }
+    return defaultParams
+  }
+
   fetch (params, method = 'POST') {
     const { type, url, bodyType } = params
     let query = ''
     if (type) {
-      if (bodyType === 3) query = `?req_data_type=${type}`
+      if (bodyType === 3 || url.includes('/set')) query = `?req_data_type=${type}`
       else query = `?rsp_data_type=${type}`
     }
     this.list = { list: [] }
@@ -74,6 +93,9 @@ class Redis {
         opt.params.members = opt.params.value
         delete opt.params.value
         break
+      case 4:
+        opt.params = this.wrapHashParams(params)
+        break
     }
     return this.fetch(opt)
   }
@@ -94,6 +116,14 @@ const selectFunc = (param) => {
           break
         default:
           opt.bodyType = 2
+      }
+      break
+    case 'hash':
+      switch (val) {
+        case 'get':
+        case 'add':
+          opt.bodyType = 4 // only for hash, value type string
+          break
       }
       break
     default:
